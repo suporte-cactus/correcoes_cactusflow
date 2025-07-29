@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação CactusFlow - Cadastro de Produtos (Nova Versão)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --border-color: #bdc3c7;
+            --input-border-color: #dce4e6;
+            --text-color: #34495e;
+            --disabled-bg: #f5f7f8;
+            --disabled-color: #95a5a6;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --success-color: #2ecc71;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .app-container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--secondary-color);
+            color: white;
+            border-bottom: 4px solid var(--primary-color);
+        }
+        .app-header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .app-header h1 .fa-cactus {
+            color: var(--primary-color);
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .action-buttons button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        .action-buttons button:hover {
+            background: var(--success-color);
+        }
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+        }
+        .tab-button {
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            color: var(--text-color);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.3s;
+        }
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+        .tab-pane {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.4s;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+        }
+        .form-group input:disabled, .form-group select:disabled {
+            background: var(--disabled-bg);
+            color: var(--disabled-color);
+            cursor: not-allowed;
+        }
+        .radio-group { display: flex; gap: 15px; margin-top: 5px; }
+        .radio-group label { font-weight: 400; cursor: pointer; }
+        .radio-group input { margin-right: 5px; }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .tooltip {
+            position: relative;
+            margin-left: 8px;
+            color: var(--info-color);
+            cursor: help;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 400;
+            font-size: 13px;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .section-title {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .item-list { border: 1px solid var(--border-color); border-radius: 5px; }
+        .item-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .item-list-header h4 { margin: 0; font-size: 1em; }
+        .add-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .add-button:hover { background-color: var(--success-color); }
+        .list-content { padding: 15px; }
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--input-border-color);
+            gap: 15px;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .handle { cursor: grab; color: var(--border-color); }
+        .list-item .item-name { flex-grow: 1; font-weight: 500; }
+        .list-item input { width: 250px; }
+        .list-item .actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--disabled-color);
+            font-size: 1.1em;
+        }
+        .list-item .actions button.delete:hover { color: var(--danger-color); }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            color: var(--disabled-color);
+        }
+        .empty-state i {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success-color);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            z-index: 9999;
+        }
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .error-message {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        fieldset:disabled { opacity: 0.6; pointer-events: none; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(44,62,80,0.25);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px 30px 20px 30px;
+            min-width: 350px;
+            max-width: 95vw;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+        .modal-content h3 {
+            margin-top: 0;
+        }
+        .modal-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        .modal-list-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .modal-list-item:last-child { border-bottom: none; }
+        .modal-list-item:hover {
+            background: #f5f7f8;
+        }
+        .modal-search {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .modal-actions button {
+            padding: 7px 18px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .modal-actions .cancel {
+            background: var(--disabled-bg);
+            color: var(--text-color);
+        }
+        .modal-actions .confirm {
+            background: var(--primary-color);
+            color: white;
+        }
+        .modal-actions .confirm:hover {
+            background: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1><i class="fa-solid fa-cactus"></i> CactusFlow - Cadastro de Produto (Nova Versão)</h1>
+            <div class="action-buttons">
+                <button id="save-btn"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+            </div>
+        </header>
+        <nav class="tab-nav">
+            <button class="tab-button active" onclick="switchTab(event, 'cadastro')">Cadastro</button>
+            <button class="tab-button" onclick="switchTab(event, 'custos')">Custos</button>
+            <button class="tab-button" onclick="switchTab(event, 'negociacao')">Negociação</button>
+            <button class="tab-button" onclick="switchTab(event, 'detalhes')">Detalhes</button>
+        </nav>
+        <main class="tab-content-wrapper">
+            <!-- Aba Cadastro -->
+            <div id="cadastro" class="tab-pane active">
+                <h3 class="section-title">Identificação do Produto</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="product-name">Nome do Produto <span style="color:var(--danger-color);">*</span></label>
+                        <input type="text" id="product-name" placeholder="Ex: Banner Promocional">
+                        <div class="error-message" id="error-product-name" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-desc">Descrição</label>
+                        <textarea id="product-desc" rows="2" placeholder="Descrição detalhada do produto"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit">Unidade de Venda</label>
+                        <select id="unit">
+                            <option value="metro_quadrado">Metro Quadrado</option>
+                            <option value="unidade">Unidade</option>
+                        </select>
+                    </div>
+                </div>
+                <h3 class="section-title">Precificação</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Modo de Precificação</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="pricing-type" value="fixed" checked onchange="togglePricingFields()"> Preço Fixo</label>
+                            <label><input type="radio" name="pricing-type" value="margin" onchange="togglePricingFields()"> Por Margem de Lucro</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-price">Preço de Venda Padrão (R$)</label>
+                        <input type="number" id="sale-price" placeholder="100,00">
+                    </div>
+                    <div class="form-group">
+                        <label for="min-sale-price">Preço de Venda Mínimo (R$)</label>
+                        <input type="number" id="min-sale-price" placeholder="80,00">
+                    </div>
+                    <div class="form-group">
+                        <label for="profit-margin">Margem de Lucro Padrão (%)
+                            <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Margem alvo sobre o custo (RKW) para sugerir o preço de venda.<br>Fórmula: (Valor Venda - Custos Variáveis) / Valor Venda</span>
+                            </div>
+                        </label>
+                        <input type="number" id="profit-margin" placeholder="30" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="is-generic">Produto Genérico
+                             <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Se ativo, ignora a composição de custos e permite preenchimento manual no orçamento.</span>
+                            </div>
+                        </label>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="is-generic">
+                          <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- Aba Custos -->
+            <div id="custos" class="tab-pane">
+                <h3 class="section-title">Composição de Custos para: <span id="product-title-costs">(Preencha o nome do produto)</span></h3>
+                <div class="item-list">
+                    <div class="item-list-header">
+                        <h4>Processos Internos</h4>
+                        <button class="add-button" onclick="openModal('process')"><i class="fa-solid fa-plus"></i> Adicionar Processo</button>
+                    </div>
+                    <div class="list-content" id="process-list">
+                        <div class="empty-state" id="empty-processes">
+                            <i class="fa-solid fa-gears"></i>
+                            <div>Nenhum processo adicionado</div>
+                            <button class="add-button" onclick="openModal('process')"><i class="fa-solid fa-plus"></i> Adicionar Processo</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="item-list" style="margin-top:30px;">
+                    <div class="item-list-header">
+                        <h4>Materiais Adicionais</h4>
+                        <button class="add-button" onclick="openModal('material')"><i class="fa-solid fa-plus"></i> Adicionar Material</button>
+                    </div>
+                    <div class="list-content" id="material-list">
+                        <div class="empty-state" id="empty-materials">
+                            <i class="fa-solid fa-box"></i>
+                            <div>Nenhum material adicionado</div>
+                            <button class="add-button" onclick="openModal('material')"><i class="fa-solid fa-plus"></i> Adicionar Material</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="item-list" style="margin-top:30px;">
+                    <div class="item-list-header">
+                        <h4>Terceirizados</h4>
+                        <button class="add-button" onclick="openModal('thirdparty')"><i class="fa-solid fa-plus"></i> Adicionar Terceiro</button>
+                    </div>
+                    <div class="list-content" id="thirdparty-list">
+                        <div class="empty-state" id="empty-thirdparties">
+                            <i class="fa-solid fa-people-carry-box"></i>
+                            <div>Nenhum terceiro adicionado</div>
+                            <button class="add-button" onclick="openModal('thirdparty')"><i class="fa-solid fa-plus"></i> Adicionar Terceiro</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Aba Negociação -->
+            <div id="negociacao" class="tab-pane">
+                <h3 class="section-title">Tabela de Preços Especiais</h3>
+                <div class="item-list">
+                    <div class="item-list-header">
+                        <h4>Regras de Preço por Cliente ou Grupo</h4>
+                        <button class="add-button" onclick="openModal('rule')"><i class="fa-solid fa-plus"></i> Adicionar Regra</button>
+                    </div>
+                    <div class="list-content" id="rule-list">
+                        <div class="empty-state" id="empty-rules">
+                            <i class="fa-solid fa-users"></i>
+                            <div>Nenhuma regra adicionada</div>
+                            <button class="add-button" onclick="openModal('rule')"><i class="fa-solid fa-plus"></i> Adicionar Regra</button>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top:15px; font-size: 13px; color: #7f8c8d;"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Atenção:</strong> O sistema precisa de uma regra de prioridade clara. Por padrão, o preço específico do cliente sobrepõe o preço do grupo.</p>
+            </div>
+            <!-- Aba Detalhes -->
+            <div id="detalhes" class="tab-pane">
+                <h3 class="section-title">Observações Internas</h3>
+                <div class="form-group">
+                    <label for="internal-notes">Observações para Produção</label>
+                    <textarea id="internal-notes" rows="3" placeholder="Instruções fixas para a equipe de produção. Ex: 'Verificar alinhamento da arte antes de imprimir.'"></textarea>
+                </div>
+            </div>
+        </main>
+        <!-- Modais -->
+        <div class="modal" id="modal-process">
+            <div class="modal-content">
+                <h3>Adicionar Processo</h3>
+                <input class="modal-search" id="search-process" placeholder="Buscar processo...">
+                <div class="modal-list" id="modal-process-list"></div>
+                <div class="modal-actions">
+                    <button class="cancel" onclick="closeModal('process')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal-material">
+            <div class="modal-content">
+                <h3>Adicionar Material</h3>
+                <input class="modal-search" id="search-material" placeholder="Buscar material...">
+                <div class="modal-list" id="modal-material-list"></div>
+                <div class="modal-actions">
+                    <button class="cancel" onclick="closeModal('material')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal-thirdparty">
+            <div class="modal-content">
+                <h3>Adicionar Terceiro</h3>
+                <input class="modal-search" id="search-thirdparty" placeholder="Buscar terceiro...">
+                <div class="modal-list" id="modal-thirdparty-list"></div>
+                <div class="modal-actions">
+                    <button class="cancel" onclick="closeModal('thirdparty')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal-rule">
+            <div class="modal-content">
+                <h3>Adicionar Regra de Preço</h3>
+                <input class="modal-search" id="search-rule" placeholder="Buscar cliente ou grupo...">
+                <div class="modal-list" id="modal-rule-list"></div>
+                <div class="modal-actions">
+                    <button class="cancel" onclick="closeModal('rule')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        <div class="toast" id="toast"></div>
+    </div>
+    <script>
+        // Dados simulados para busca/autocomplete
+        const processes = [
+            { id: 1, name: 'Impressão Digital', formula: 'AREA / 10', costCenter: 'Impressão', hourlyRate: 85 },
+            { id: 2, name: 'Refile', formula: 'PERIMETRO / 60', costCenter: 'Acabamento', hourlyRate: 50 },
+            { id: 3, name: 'Solda', formula: 'PERIMETRO / 40', costCenter: 'Acabamento', hourlyRate: 50 },
+        ];
+        const materials = [
+            { id: 1, name: 'Lona 440g', costPerUnit: 15, unit: 'm²' },
+            { id: 2, name: 'Vinil Adesivo', costPerUnit: 18, unit: 'm²' },
+            { id: 3, name: 'Tinta Solvente', costPerUnit: 120, unit: 'L' },
+        ];
+        const thirdparties = [
+            { id: 1, name: 'Terceirizado Corte CNC', cost: 30 },
+            { id: 2, name: 'Terceirizado Solda', cost: 25 },
+        ];
+        const rules = [
+            { id: 1, type: 'group', name: 'Agências', price: 70 },
+            { id: 2, type: 'client', name: 'Cliente XYZ', price: 75 },
+        ];
+        // Estado das listas
+        let processList = [];
+        let materialList = [];
+        let thirdpartyList = [];
+        let ruleList = [];
+        // Troca de abas
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabName === 'custos') {
+                document.getElementById('product-title-costs').innerText = document.getElementById('product-name').value || '(Preencha o nome do produto)';
+            }
+        }
+        // Precificação
+        function togglePricingFields() {
+            const pricingType = document.querySelector('input[name="pricing-type"]:checked').value;
+            const salePriceInput = document.getElementById('sale-price');
+            const minSalePriceInput = document.getElementById('min-sale-price');
+            const profitMarginInput = document.getElementById('profit-margin');
+            if (pricingType === 'fixed') {
+                salePriceInput.disabled = false;
+                minSalePriceInput.disabled = false;
+                profitMarginInput.disabled = true;
+                profitMarginInput.value = '';
+            } else {
+                salePriceInput.disabled = true;
+                minSalePriceInput.disabled = true;
+                salePriceInput.value = '';
+                minSalePriceInput.value = '';
+                profitMarginInput.disabled = false;
+            }
+        }
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+        // Modal
+        function openModal(type) {
+            document.getElementById(`modal-${type}`).classList.add('active');
+            const searchInput = document.getElementById(`search-${type}`);
+            searchInput.value = '';
+            searchInput.focus();
+            renderModalList(type, '');
+            searchInput.oninput = (e) => renderModalList(type, e.target.value);
+        }
+        function closeModal(type) {
+            document.getElementById(`modal-${type}`).classList.remove('active');
+        }
+        function renderModalList(type, filter) {
+            let data = [];
+            if(type==='process') data = processes;
+            if(type==='material') data = materials;
+            if(type==='thirdparty') data = thirdparties;
+            if(type==='rule') data = rules;
+            const listDiv = document.getElementById(`modal-${type}-list`);
+            listDiv.innerHTML = '';
+            data.filter(item => item.name.toLowerCase().includes(filter.toLowerCase())).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'modal-list-item';
+                div.innerHTML = `<span>${item.name}</span>`;
+                div.onclick = () => { addItem(type, item); closeModal(type); };
+                listDiv.appendChild(div);
+            });
+            if(listDiv.innerHTML === '') {
+                listDiv.innerHTML = '<div style="color:#aaa; padding:10px;">Nenhum resultado encontrado.</div>';
+            }
+        }
+        // Adicionar itens
+        function addItem(type, item) {
+            if(type==='process') {
+                processList.push({ ...item, formula: item.formula, tempId: Date.now() });
+                renderProcessList();
+            }
+            if(type==='material') {
+                materialList.push({ ...item, tempId: Date.now() });
+                renderMaterialList();
+            }
+            if(type==='thirdparty') {
+                thirdpartyList.push({ ...item, tempId: Date.now() });
+                renderThirdpartyList();
+            }
+            if(type==='rule') {
+                ruleList.push({ ...item, tempId: Date.now() });
+                renderRuleList();
+            }
+        }
+        // Remover itens
+        function removeItem(type, tempId) {
+            if(!window.confirm('Tem certeza que deseja remover este item?')) return;
+            if(type==='process') {
+                processList = processList.filter(i => i.tempId !== tempId);
+                renderProcessList();
+            }
+            if(type==='material') {
+                materialList = materialList.filter(i => i.tempId !== tempId);
+                renderMaterialList();
+            }
+            if(type==='thirdparty') {
+                thirdpartyList = thirdpartyList.filter(i => i.tempId !== tempId);
+                renderThirdpartyList();
+            }
+            if(type==='rule') {
+                ruleList = ruleList.filter(i => i.tempId !== tempId);
+                renderRuleList();
+            }
+        }
+        // Renderização das listas
+        function renderProcessList() {
+            const list = document.getElementById('process-list');
+            if(processList.length === 0) {
+                document.getElementById('empty-processes').style.display = 'flex';
+                list.innerHTML = '';
+                list.appendChild(document.getElementById('empty-processes'));
+                return;
+            }
+            document.getElementById('empty-processes').style.display = 'none';
+            list.innerHTML = '';
+            processList.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.draggable = true;
+                div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', idx); };
+                div.ondragover = (e) => { e.preventDefault(); };
+                div.ondrop = (e) => {
+                    const from = +e.dataTransfer.getData('text/plain');
+                    const to = idx;
+                    if(from !== to) {
+                        const moved = processList.splice(from,1)[0];
+                        processList.splice(to,0,moved);
+                        renderProcessList();
+                    }
+                };
+                div.innerHTML = `<i class="fa-solid fa-grip-vertical handle" title="Arraste para reordenar"></i>
+                    <span class="item-name">${item.name}</span>
+                    <input type="text" value="${item.formula}" style="width:120px;" title="Fórmula de tempo" onchange="processList[${idx}].formula=this.value">
+                    <span style="font-size:12px;color:#888;">${item.costCenter} (${item.hourlyRate}/h)</span>
+                    <div class="actions"><button class="delete" onclick="removeItem('process',${item.tempId})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                list.appendChild(div);
+            });
+        }
+        function renderMaterialList() {
+            const list = document.getElementById('material-list');
+            if(materialList.length === 0) {
+                document.getElementById('empty-materials').style.display = 'flex';
+                list.innerHTML = '';
+                list.appendChild(document.getElementById('empty-materials'));
+                return;
+            }
+            document.getElementById('empty-materials').style.display = 'none';
+            list.innerHTML = '';
+            materialList.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.draggable = true;
+                div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', idx); };
+                div.ondragover = (e) => { e.preventDefault(); };
+                div.ondrop = (e) => {
+                    const from = +e.dataTransfer.getData('text/plain');
+                    const to = idx;
+                    if(from !== to) {
+                        const moved = materialList.splice(from,1)[0];
+                        materialList.splice(to,0,moved);
+                        renderMaterialList();
+                    }
+                };
+                div.innerHTML = `<i class="fa-solid fa-grip-vertical handle" title="Arraste para reordenar"></i>
+                    <span class="item-name">${item.name}</span>
+                    <input type="text" value="AREA * 1" style="width:120px;" title="Fórmula de consumo" onchange="materialList[${idx}].formula=this.value">
+                    <span style="font-size:12px;color:#888;">${item.costPerUnit}/${item.unit}</span>
+                    <div class="actions"><button class="delete" onclick="removeItem('material',${item.tempId})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                list.appendChild(div);
+            });
+        }
+        function renderThirdpartyList() {
+            const list = document.getElementById('thirdparty-list');
+            if(thirdpartyList.length === 0) {
+                document.getElementById('empty-thirdparties').style.display = 'flex';
+                list.innerHTML = '';
+                list.appendChild(document.getElementById('empty-thirdparties'));
+                return;
+            }
+            document.getElementById('empty-thirdparties').style.display = 'none';
+            list.innerHTML = '';
+            thirdpartyList.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.draggable = true;
+                div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', idx); };
+                div.ondragover = (e) => { e.preventDefault(); };
+                div.ondrop = (e) => {
+                    const from = +e.dataTransfer.getData('text/plain');
+                    const to = idx;
+                    if(from !== to) {
+                        const moved = thirdpartyList.splice(from,1)[0];
+                        thirdpartyList.splice(to,0,moved);
+                        renderThirdpartyList();
+                    }
+                };
+                div.innerHTML = `<i class="fa-solid fa-grip-vertical handle" title="Arraste para reordenar"></i>
+                    <span class="item-name">${item.name}</span>
+                    <span style="font-size:12px;color:#888;">${item.cost ? 'R$ '+item.cost : ''}</span>
+                    <div class="actions"><button class="delete" onclick="removeItem('thirdparty',${item.tempId})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                list.appendChild(div);
+            });
+        }
+        function renderRuleList() {
+            const list = document.getElementById('rule-list');
+            if(ruleList.length === 0) {
+                document.getElementById('empty-rules').style.display = 'flex';
+                list.innerHTML = '';
+                list.appendChild(document.getElementById('empty-rules'));
+                return;
+            }
+            document.getElementById('empty-rules').style.display = 'none';
+            list.innerHTML = '';
+            ruleList.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.draggable = true;
+                div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', idx); };
+                div.ondragover = (e) => { e.preventDefault(); };
+                div.ondrop = (e) => {
+                    const from = +e.dataTransfer.getData('text/plain');
+                    const to = idx;
+                    if(from !== to) {
+                        const moved = ruleList.splice(from,1)[0];
+                        ruleList.splice(to,0,moved);
+                        renderRuleList();
+                    }
+                };
+                div.innerHTML = `<i class="fa-solid fa-grip-vertical handle" title="Arraste para reordenar"></i>
+                    <span class="item-name">${item.type==='group' ? 'Grupo: ' : 'Cliente: '}${item.name}</span>
+                    <span>Preço: R$ ${item.price}</span>
+                    <div class="actions"><button class="delete" onclick="removeItem('rule',${item.tempId})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                list.appendChild(div);
+            });
+        }
+        // Validação e salvar
+        document.getElementById('save-btn').onclick = function() {
+            let valid = true;
+            const name = document.getElementById('product-name').value.trim();
+            if(!name) {
+                document.getElementById('error-product-name').innerText = 'O nome do produto é obrigatório.';
+                document.getElementById('error-product-name').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('error-product-name').style.display = 'none';
+            }
+            // Outras validações podem ser adicionadas aqui
+            if(valid) {
+                showToast('Produto salvo com sucesso!');
+            }
+        };
+        // Atualiza título das abas
+        document.getElementById('product-name').oninput = function() {
+            if(document.getElementById('custos').classList.contains('active')) {
+                document.getElementById('product-title-costs').innerText = this.value || '(Preencha o nome do produto)';
+            }
+        };
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            togglePricingFields();
+            renderProcessList();
+            renderMaterialList();
+            renderThirdpartyList();
+            renderRuleList();
+        });
+    </script>
+</body>
+</html>

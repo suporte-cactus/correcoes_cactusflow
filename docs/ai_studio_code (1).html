@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produto - CactusFlow</title>
+    <!-- Usando Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --border-color: #bdc3c7;
+            --input-border-color: #dce4e6;
+            --text-color: #34495e;
+            --disabled-bg: #f5f7f8;
+            --disabled-color: #95a5a6;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--secondary-color);
+            color: white;
+            border-bottom: 4px solid var(--primary-color);
+        }
+
+        .app-header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-header h1 .fa-cactus {
+            color: var(--primary-color);
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .action-buttons button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .action-buttons button:hover {
+            background: #2ecc71;
+        }
+        
+        .action-buttons button.cancel {
+            background: none;
+            color: white;
+            opacity: 0.8;
+        }
+        .action-buttons button.cancel:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+        }
+
+        .tab-button {
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            color: var(--text-color);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.4s;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+        }
+        
+        .form-group input:disabled, .form-group select:disabled {
+            background: var(--disabled-bg);
+            color: var(--disabled-color);
+            cursor: not-allowed;
+        }
+        
+        .radio-group { display: flex; gap: 15px; margin-top: 5px; }
+        .radio-group label { font-weight: 400; cursor: pointer; }
+        .radio-group input { margin-right: 5px; }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .tooltip {
+            position: relative;
+            margin-left: 8px;
+            color: var(--info-color);
+            cursor: help;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 400;
+            font-size: 13px;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .item-list { border: 1px solid var(--border-color); border-radius: 5px; }
+        .item-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .item-list-header h4 { margin: 0; font-size: 1em; }
+        .add-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .add-button:hover { background-color: #2ecc71; }
+        
+        .list-content { padding: 15px; }
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--input-border-color);
+            gap: 15px;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .handle { cursor: grab; color: var(--border-color); }
+        .list-item .item-name { flex-grow: 1; font-weight: 500; }
+        .list-item input { width: 250px; }
+        .list-item .actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--disabled-color);
+            font-size: 1.1em;
+        }
+        .list-item .actions button.delete:hover { color: var(--danger-color); }
+        
+        fieldset:disabled { opacity: 0.6; pointer-events: none; }
+        
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <h1><i class="fa-solid fa-cactus"></i> CactusFlow - Cadastro de Produto</h1>
+            <div class="action-buttons">
+                <button class="cancel">Cancelar</button>
+                <button><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+            </div>
+        </header>
+
+        <nav class="tab-nav">
+            <button class="tab-button active" onclick="switchTab(event, 'cadastro')">Cadastro</button>
+            <button class="tab-button" onclick="switchTab(event, 'negociacao')">Negociação</button>
+            <button class="tab-button" onclick="switchTab(event, 'impressao')">Impressão</button>
+            <button class="tab-button" onclick="switchTab(event, 'composicao')">Composição</button>
+            <button class="tab-button" onclick="switchTab(event, 'terceiros')">Terceiros</button>
+            <button class="tab-button" onclick="switchTab(event, 'detalhes')">Detalhes</button>
+        </nav>
+
+        <main class="tab-content-wrapper">
+            <!-- Aba Cadastro -->
+            <div id="cadastro" class="tab-pane active">
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="product-name">Nome do Produto</label>
+                        <input type="text" id="product-name" placeholder="Ex: Banner em Lona Fosca 440g" value="Banner Promocional">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="product-description">Descrição
+                            <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Descrição detalhada que pode aparecer na proposta. Se genérica, exigirá edição manual no orçamento.</span>
+                            </div>
+                        </label>
+                        <textarea id="product-description" rows="3" placeholder="Detalhes técnicos, comerciais ou de acabamento."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit-of-sale">Unidade de Venda</label>
+                        <select id="unit-of-sale">
+                            <option value="unidade">Unidade (UN)</option>
+                            <option value="m2" selected>Metro Quadrado (m²)</option>
+                            <option value="ml">Metro Linear (ML)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Precificação
+                            <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Define se o preço é fixo ou calculado dinamicamente a partir dos custos mais uma margem.</span>
+                            </div>
+                        </label>
+                        <div class="radio-group">
+                           <label><input type="radio" name="pricing-type" value="fixed" checked onchange="togglePricingFields()"> Por Preço Fixo</label>
+                           <label><input type="radio" name="pricing-type" value="margin" onchange="togglePricingFields()"> Por Margem de Lucro</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-price">Preço de Venda Padrão (R$)</label>
+                        <input type="number" id="sale-price" placeholder="100,00" value="100.00">
+                    </div>
+                     <div class="form-group">
+                        <label for="min-sale-price">Preço de Venda Mínimo (R$)</label>
+                        <input type="number" id="min-sale-price" placeholder="80,00" value="80.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="profit-margin">Margem de Lucro Padrão (%)
+                            <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Margem alvo sobre o custo (RKW) para sugerir o preço de venda.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="profit-margin" placeholder="30" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="is-generic">Produto Genérico
+                             <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Se ativo, ignora a composição de custos e permite preenchimento manual no orçamento.</span>
+                            </div>
+                        </label>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="is-generic">
+                          <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Negociação -->
+            <div id="negociacao" class="tab-pane">
+                 <h3 class="section-title">Tabela de Preços Especiais</h3>
+                 <div class="item-list">
+                    <div class="item-list-header">
+                        <h4>Regras de Preço por Cliente ou Grupo</h4>
+                        <button class="add-button"><i class="fa-solid fa-plus"></i> Adicionar Regra</button>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-item">
+                            <span class="item-name"><i class="fa-solid fa-user-group" style="margin-right: 8px; color: #3498db;"></i> Grupo: Terceiros</span>
+                            <span>Preço (m²): R$ 70,00</span>
+                            <div class="actions" style="margin-left:auto;">
+                                <button class="delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <span class="item-name"><i class="fa-solid fa-user" style="margin-right: 8px; color: #9b59b6;"></i> Cliente: Agência Criativa XYZ</span>
+                            <span>Preço (m²): R$ 75,00</span>
+                             <div class="actions" style="margin-left:auto;">
+                                <button class="delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top:15px; font-size: 13px; color: #7f8c8d;"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Atenção:</strong> O sistema precisa de uma regra de prioridade clara. Por padrão, o preço específico do cliente sobrepõe o preço do grupo.</p>
+            </div>
+
+            <!-- Aba Impressão -->
+            <div id="impressao" class="tab-pane">
+                <div class="form-group">
+                     <label for="uses-printing">Utiliza Impressão
+                         <div class="tooltip">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span class="tooltip-text">Habilita/desabilita toda a configuração e custos de impressão para este produto.</span>
+                        </div>
+                     </label>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="uses-printing" checked onchange="toggleImpressionFields()">
+                      <span class="slider"></span>
+                    </label>
+                </div>
+                <fieldset id="impression-fieldset">
+                    <h3 class="section-title">Configurações de Impressão</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="default-machine">Equipamento Padrão</label>
+                            <select id="default-machine">
+                                <option>Roland VG2-640</option>
+                                <option selected>HP Latex 365</option>
+                                <option>Mimaki UJV100-160</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="default-media">Mídia Padrão</label>
+                            <select id="default-media">
+                                <option>Adesivo Vinil Brilho</option>
+                                <option selected>Lona Fosca 440g</option>
+                                <option>Tecido Poliéster</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="print-quality">Qualidade de Impressão Padrão</label>
+                            <select id="print-quality">
+                                <option>Rascunho (12 m²/h)</option>
+                                <option selected>Produção Padrão (8 m²/h)</option>
+                                <option>Alta Qualidade (4 m²/h)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ink-coverage">Cobertura de Tinta Média (%)</label>
+                            <input type="number" id="ink-coverage" value="65">
+                        </div>
+                        <div class="form-group">
+                            <label>Sobra Técnica (Sangria)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" placeholder="Largura (cm)" value="5">
+                                <input type="number" placeholder="Altura (cm)" value="5">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Aba Composição -->
+            <div id="composicao" class="tab-pane">
+                 <h3 class="section-title">Composição de Custos (Processos e Materiais)</h3>
+                 
+                 <div class="item-list">
+                    <div class="item-list-header">
+                        <h4>Processos de Produção</h4>
+                        <button class="add-button"><i class="fa-solid fa-plus"></i> Adicionar Processo</button>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-item">
+                            <i class="fa-solid fa-grip-vertical handle"></i>
+                            <span class="item-name">Refile</span>
+                            <input type="text" value="(LARGURA + ALTURA) * 2" placeholder="Fórmula de quantidade...">
+                            <div class="actions"><button class="delete"><i class="fa-solid fa-trash-can"></i></button></div>
+                        </div>
+                        <div class="list-item">
+                             <i class="fa-solid fa-grip-vertical handle"></i>
+                            <span class="item-name">Acabamento com Ilhós</span>
+                             <input type="text" value="(LARGURA / 0.25) * 2 + (ALTURA / 0.25) * 2" placeholder="Fórmula de quantidade...">
+                             <div class="actions"><button class="delete"><i class="fa-solid fa-trash-can"></i></button></div>
+                        </div>
+                    </div>
+                 </div>
+                 
+                 <div class="item-list" style="margin-top:20px;">
+                    <div class="item-list-header">
+                        <h4>Materiais Diretos
+                            <div class="tooltip">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span class="tooltip-text">Apenas materiais principais. Consumíveis como tinta e cola devem ser vinculados ao custo do processo, não aqui.</span>
+                            </div>
+                        </h4>
+                        <button class="add-button"><i class="fa-solid fa-plus"></i> Adicionar Material</button>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-item">
+                             <i class="fa-solid fa-grip-vertical handle"></i>
+                            <span class="item-name">Bastão de Madeira (Superior e Inferior)</span>
+                            <input type="text" value="QUANTIDADE * 2" placeholder="Fórmula de quantidade...">
+                             <div class="actions"><button class="delete"><i class="fa-solid fa-trash-can"></i></button></div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            
+            <!-- Aba Terceiros -->
+            <div id="terceiros" class="tab-pane">
+                 <h3 class="section-title">Serviços Terceirizados</h3>
+                 <div class="item-list">
+                    <div class="item-list-header">
+                        <h4>Mão de Obra Externa</h4>
+                        <button class="add-button"><i class="fa-solid fa-plus"></i> Adicionar Serviço</button>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-item">
+                            <span class="item-name">Instalação em Altura (Alpinismo)</span>
+                            <div class="actions" style="margin-left:auto;">
+                                <button class="delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                         <!-- Placeholder for empty state -->
+                         <div style="text-align:center; padding: 20px; color: #7f8c8d;">Nenhum serviço terceirizado adicionado.</div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Aba Detalhes -->
+            <div id="detalhes" class="tab-pane">
+                <h3 class="section-title">Configurações Adicionais</h3>
+                <div class="form-grid">
+                     <div class="form-group">
+                        <label for="tax-load">Carga Tributária Padrão (%)</label>
+                        <input type="number" id="tax-load" value="12">
+                    </div>
+                     <div class="form-group">
+                        <label for="commission">Comissão Padrão (%)</label>
+                        <input type="number" id="commission" value="5">
+                    </div>
+                     <div class="form-group">
+                        <label for="production-days">Prazo de Produção Padrão (dias)</label>
+                        <input type="number" id="production-days" value="3">
+                    </div>
+                     <div class="form-group">
+                        <label for="accounting-class">Classificação Financeira/Contábil</label>
+                        <select id="accounting-class">
+                            <option>Selecione...</option>
+                            <option selected>1.01 - Receita de Comunicação Visual</option>
+                            <option>1.02 - Receita de Brindes</option>
+                        </select>
+                    </div>
+                     <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="internal-notes">Observações Internas (Padrão para Produção)</label>
+                        <textarea id="internal-notes" rows="3" placeholder="Instruções fixas para a equipe de produção. Ex: 'Verificar alinhamento da arte antes de imprimir.'"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Função para trocar de abas
+        function switchTab(event, tabName) {
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Função para alternar campos de precificação
+        function togglePricingFields() {
+            const pricingType = document.querySelector('input[name="pricing-type"]:checked').value;
+            const salePriceInput = document.getElementById('sale-price');
+            const minSalePriceInput = document.getElementById('min-sale-price');
+            const profitMarginInput = document.getElementById('profit-margin');
+
+            if (pricingType === 'fixed') {
+                salePriceInput.disabled = false;
+                minSalePriceInput.disabled = false;
+                profitMarginInput.disabled = true;
+                profitMarginInput.value = '';
+            } else {
+                salePriceInput.disabled = true;
+                minSalePriceInput.disabled = true;
+                salePriceInput.value = '';
+                minSalePriceInput.value = '';
+                profitMarginInput.disabled = false;
+            }
+        }
+        
+        // Função para alternar campos de impressão
+        function toggleImpressionFields() {
+            const usesPrinting = document.getElementById('uses-printing').checked;
+            document.getElementById('impression-fieldset').disabled = !usesPrinting;
+        }
+
+        // Inicializa o estado dos campos ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            togglePricingFields();
+            toggleImpressionFields();
+        });
+    </script>
+
+</body>
+</html>

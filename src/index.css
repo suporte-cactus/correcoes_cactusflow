@@ -1,0 +1,27 @@
+:root {
+  --primary-color: #27ae60;
+  --secondary-color: #2c3e50;
+  --background-color: #ecf0f1;
+  --card-background: #ffffff;
+  --border-color: #bdc3c7;
+  --input-border-color: #dce4e6;
+  --text-color: #34495e;
+  --disabled-bg: #f5f7f8;
+  --disabled-color: #95a5a6;
+  --danger-color: #e74c3c;
+  --info-color: #3498db;
+  --success-color: #2ecc71;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  font-size: 14px;
+}
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
+}
